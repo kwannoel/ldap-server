@@ -115,7 +115,24 @@ To enable LDAP authentication for PostgreSQL:
 docker-compose down
 ```
 
-To remove all data:
+## Cleaning Data
+
+To completely reset and clean all persistent data:
+
 ```bash
-docker-compose down -v
+# Stop all services
+docker-compose down
+
+# Remove all volumes manually (recommended for complete cleanup)
+docker volume rm ldap-server_postgres_data ldap-server_ldap_data ldap-server_ldap_config
+
+# Restart with fresh data
+docker-compose up -d
 ```
+
+Alternative one-liner (removes volumes automatically):
+```bash
+docker-compose down -v && docker-compose up -d
+```
+
+**Note**: The manual volume removal method ensures complete cleanup, especially useful when troubleshooting persistent configuration issues.

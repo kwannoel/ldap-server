@@ -19,7 +19,7 @@ cn: John Doe
 displayName: John Doe
 uidNumber: 1001
 gidNumber: 1001
-userPassword: {SSHA}hashed_password_here
+userPassword: abc
 gecos: John Doe
 loginShell: /bin/bash
 homeDirectory: /home/john.doe
