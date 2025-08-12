@@ -1,0 +1,39 @@
+# Create organizational units
+dn: ou=people,dc=example,dc=com
+objectClass: organizationalUnit
+ou: people
+
+dn: ou=groups,dc=example,dc=com
+objectClass: organizationalUnit
+ou: groups
+
+# Create a sample user
+dn: uid=john.doe,ou=people,dc=example,dc=com
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: john.doe
+sn: Doe
+givenName: John
+cn: John Doe
+displayName: John Doe
+uidNumber: 1001
+gidNumber: 1001
+userPassword: {SSHA}hashed_password_here
+gecos: John Doe
+loginShell: /bin/bash
+homeDirectory: /home/john.doe
+mail: john.doe@example.com
+
+# Create a sample group
+dn: cn=users,ou=groups,dc=example,dc=com
+objectClass: posixGroup
+cn: users
+gidNumber: 1001
+memberUid: john.doe
+
+# Create admin group
+dn: cn=admins,ou=groups,dc=example,dc=com
+objectClass: posixGroup
+cn: admins
+gidNumber: 1002

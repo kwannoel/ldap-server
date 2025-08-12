@@ -1,0 +1,58 @@
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: ldap-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-ldapdb}
+      POSTGRES_USER: ${POSTGRES_USER:-ldapuser}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ldappass}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+
+  openldap:
+    image: osixia/openldap:1.5.0
+    container_name: ldap-server
+    environment:
+      LDAP_ORGANISATION: ${LDAP_ORGANISATION:-Example Corp}
+      LDAP_DOMAIN: ${LDAP_DOMAIN:-example.com}
+      LDAP_ADMIN_PASSWORD: ${LDAP_ADMIN_PASSWORD:-admin123}
+      LDAP_CONFIG_PASSWORD: ${LDAP_CONFIG_PASSWORD:-config123}
+      LDAP_READONLY_USER: false
+      LDAP_RFC2307BIS_SCHEMA: false
+      LDAP_BACKEND: mdb
+      LDAP_TLS: false
+      LDAP_REPLICATION: false
+      KEEP_EXISTING_CONFIG: false
+      LDAP_REMOVE_CONFIG_AFTER_SETUP: false
+      LDAP_SSL_HELPER_PREFIX: ldap
+    tty: true
+    stdin_open: true
+    volumes:
+      - ldap_data:/var/lib/ldap
+      - ldap_config:/etc/ldap/slapd.d
+      - ./ldap:/container/service/slapd/assets/config/bootstrap/ldif/custom
+    ports:
+      - "389:389"
+    hostname: ldap.${LDAP_DOMAIN:-example.com}
+    restart: unless-stopped
+
+  phpldapadmin:
+    image: osixia/phpldapadmin:latest
+    container_name: ldap-admin
+    environment:
+      PHPLDAPADMIN_LDAP_HOSTS: openldap
+      PHPLDAPADMIN_HTTPS: false
+    ports:
+      - "8080:80"
+    depends_on:
+      - openldap
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  ldap_data:
+  ldap_config:
