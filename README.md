@@ -37,7 +37,7 @@ Edit `.env` file to customize:
 - Base DN: `dc=example,dc=com`
 - Users: `ou=people,dc=example,dc=com`
 - Groups: `ou=groups,dc=example,dc=com`
-- Sample user: `john.doe` (password needs to be set via phpLDAPadmin)
+- Sample user: `john.doe`, password: `abc` (password needs to be set via phpLDAPadmin)
 
 ## User Stories
 

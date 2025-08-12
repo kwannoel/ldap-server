@@ -10,7 +10,8 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./postgres/init-ldap.sql:/docker-entrypoint-initdb.d/init-ldap.sql
-      - ./postgres/pg_hba.conf:/var/lib/postgresql/data/pg_hba.conf
+      - ./postgres/pg_hba.conf:/docker-entrypoint-initdb.d/pg_hba.conf
+      - ./postgres/99-setup-pg-hba.sh:/docker-entrypoint-initdb.d/99-setup-pg-hba.sh
     ports:
       - "5432:5432"
     restart: unless-stopped
