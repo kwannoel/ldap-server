@@ -19,11 +19,40 @@ A minimal LDAP server solution with PostgreSQL, OpenLDAP, and phpLDAPadmin using
    - Login DN: `cn=admin,dc=example,dc=com`
    - Password: `admin123`
 
-3. Connect to PostgreSQL:
+3. Connect to PostgreSQL using root user:
    ```bash
-   psql -h localhost -U ldapuser -d ldapdb
+   PGPASSWORD=ldappass psql -h localhost -U ldapuser -d ldapdb
    ```
-   Password: `ldappass`
+
+4. Connect to PostgreSQL using AD user (john.doe):
+   ```bash
+   PGPASSWORD=abc psql -h localhost -U john.doe -d ldapdb
+   ```
+
+   You should see the following logs in the LDAP server:
+   ```bash
+    689c4c0c conn=1002 fd=12 ACCEPT from IP=192.168.117.3:42718 (IP=0.0.0.0:389)
+    689c4c0c conn=1002 op=0 BIND dn="cn=admin,dc=example,dc=com" method=128
+    689c4c0c conn=1002 op=0 BIND dn="cn=admin,dc=example,dc=com" mech=SIMPLE ssf=0
+    689c4c0c conn=1002 op=0 RESULT tag=97 err=0 text=
+    689c4c0c connection_input: conn=1002 deferring operation: binding
+    689c4c0c conn=1002 op=1 SRCH base="ou=people,dc=example,dc=com" scope=2 deref=0 filter="(uid=john.doe)"
+    689c4c0c conn=1002 op=1 SRCH attr=1.1
+    689c4c0c conn=1002 op=2 UNBIND
+    689c4c0c conn=1002 op=1 SEARCH RESULT tag=101 err=0 nentries=1 text=
+    689c4c0c conn=1002 fd=12 closed
+    689c4c0c conn=1003 op=0 BIND dn="uid=john.doe,ou=people,dc=example,dc=com" method=128
+    689c4c0c conn=1003 fd=12 ACCEPT from IP=192.168.117.3:42722 (IP=0.0.0.0:389)
+    689c4c0c conn=1003 op=0 BIND dn="uid=john.doe,ou=people,dc=example,dc=com" mech=SIMPLE ssf=0
+    689c4c0c conn=1003 op=0 RESULT tag=97 err=0 text=
+    689c4c0c conn=1003 op=1 UNBIND
+    689c4c0c conn=1003 fd=12 closed
+   ```
+
+5. Teardown (including volumes):
+    ```bash
+    docker-compose down -v
+    ```
 
 ## Configuration
 
@@ -79,60 +108,3 @@ docker exec ldap-server ldapsearch -x -H ldap://localhost -b "ou=people,dc=examp
 # Test user authentication
 docker exec ldap-server ldapwhoami -x -H ldap://localhost -D "uid=jane.smith,ou=people,dc=example,dc=com" -w userpassword
 ```
-
-**PostgreSQL Integration (Optional):**
-
-To enable LDAP authentication for PostgreSQL:
-
-1. **Configure PostgreSQL for LDAP auth** - Add to `pg_hba.conf`:
-   ```
-   host    all    all    0.0.0.0/0    ldap ldapserver=openldap ldapport=389 ldapbinddn="cn=admin,dc=example,dc=com" ldapbindpasswd=admin123 ldapsearchattribute=uid ldapbasedn="ou=people,dc=example,dc=com"
-   ```
-
-2. **Create PostgreSQL user** (matches LDAP uid):
-   ```bash
-   # Connect as postgres admin
-   docker exec -it ldap-postgres psql -U ldapuser -d ldapdb
-   
-   # Create user matching LDAP uid
-   CREATE USER "jane.smith";
-   GRANT CONNECT ON DATABASE ldapdb TO "jane.smith";
-   GRANT USAGE ON SCHEMA public TO "jane.smith";
-   ```
-
-3. **Test LDAP authentication to PostgreSQL**:
-   ```bash
-   # User authenticates via LDAP, connects to PostgreSQL
-   psql -h localhost -U jane.smith -d ldapdb
-   # Enter LDAP password when prompted
-   ```
-
-**Note**: This requires mounting a custom `pg_hba.conf` in the docker-compose configuration.
-
-## Stopping Services
-
-```bash
-docker-compose down
-```
-
-## Cleaning Data
-
-To completely reset and clean all persistent data:
-
-```bash
-# Stop all services
-docker-compose down
-
-# Remove all volumes manually (recommended for complete cleanup)
-docker volume rm ldap-server_postgres_data ldap-server_ldap_data ldap-server_ldap_config
-
-# Restart with fresh data
-docker-compose up -d
-```
-
-Alternative one-liner (removes volumes automatically):
-```bash
-docker-compose down -v && docker-compose up -d
-```
-
-**Note**: The manual volume removal method ensures complete cleanup, especially useful when troubleshooting persistent configuration issues.
