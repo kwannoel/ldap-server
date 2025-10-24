@@ -1,0 +1,24 @@
+dn: cn=config
+changetype: modify
+replace: olcTLSVerifyClient
+olcTLSVerifyClient: demand
+
+dn: cn=config
+changetype: modify
+replace: olcTLSCACertificateFile
+olcTLSCACertificateFile: /container/service/slapd/assets/certs/ca.crt
+
+dn: cn=config
+changetype: modify
+replace: olcTLSCertificateFile
+olcTLSCertificateFile: /container/service/slapd/assets/certs/server.crt
+
+dn: cn=config
+changetype: modify
+replace: olcTLSCertificateKeyFile
+olcTLSCertificateKeyFile: /container/service/slapd/assets/certs/server.key
+
+dn: cn=config
+changetype: modify
+replace: olcTLSDHParamFile
+olcTLSDHParamFile: /container/service/slapd/assets/certs/dhparam.pem
