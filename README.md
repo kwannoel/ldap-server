@@ -10,21 +10,27 @@ A minimal LDAP server solution with PostgreSQL, OpenLDAP, and phpLDAPadmin using
 
 ## Quick Start
 
-1. Start all services:
+1. Init certs:
+   ```
+   cd certs
+   bash init-certs.sh
+   ```
+
+2. Start all services:
    ```bash
    docker-compose up -d
    ```
 
-2. Access phpLDAPadmin at http://localhost:8080
+3. Access phpLDAPadmin at http://localhost:8080
    - Login DN: `cn=admin,dc=example,dc=com`
    - Password: `admin123`
 
-3. Connect to PostgreSQL using root user:
+4. Connect to PostgreSQL using root user:
    ```bash
    PGPASSWORD=ldappass psql -h localhost -U ldapuser -d ldapdb
    ```
 
-4. Connect to PostgreSQL using AD user (john.doe):
+5. Connect to PostgreSQL using AD user (john.doe):
    ```bash
    PGPASSWORD=abc psql -h localhost -U john.doe -d ldapdb
    ```
@@ -49,7 +55,7 @@ A minimal LDAP server solution with PostgreSQL, OpenLDAP, and phpLDAPadmin using
     689c4c0c conn=1003 fd=12 closed
    ```
 
-5. Teardown (including volumes):
+6. Teardown (including volumes):
     ```bash
     docker-compose down -v
     ```
